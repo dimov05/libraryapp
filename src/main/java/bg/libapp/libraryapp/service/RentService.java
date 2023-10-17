@@ -34,11 +34,8 @@ import static bg.libapp.libraryapp.model.constants.ApplicationConstants.ONE_MONT
 public class RentService {
     private final Logger logger = LoggerFactory.getLogger(BookService.class);
     private final BookRepository bookRepository;
-
     private final RentRepository rentRepository;
-
     private final UserService userService;
-
     private final BookService bookService;
 
     @Autowired
@@ -65,6 +62,7 @@ public class RentService {
                 .setUser(borrower)
                 .setExpectedReturnDate(getExpectedDateToSet(rentAddRequest));
         rentRepository.saveAndFlush(rent);
+        borrower.addRent(rent);
         bookRepository.saveAndFlush(book.setAvailableQuantity(book.getAvailableQuantity() - 1));
         logger.info("Created new rent with params: " + rent);
         return RentMapper.mapToRentDTO(rent);

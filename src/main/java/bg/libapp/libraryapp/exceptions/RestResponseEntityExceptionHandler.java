@@ -47,7 +47,6 @@ public class RestResponseEntityExceptionHandler
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-
     @ExceptionHandler(value
             = {BookNotFoundException.class, RentNotFoundException.class, AuthorNotFoundException.class, FieldNotFoundException.class, GenreNotFoundException.class, UserNotFoundException.class})
     protected ResponseEntity<Object> handleNotFound(
@@ -65,5 +64,4 @@ public class RestResponseEntityExceptionHandler
         return handleExceptionInternal(ex, bodyOfResponse,
                 new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY, request);
     }
-
 }

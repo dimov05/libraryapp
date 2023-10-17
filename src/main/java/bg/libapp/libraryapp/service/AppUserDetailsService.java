@@ -13,9 +13,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Collections;
 
+import static bg.libapp.libraryapp.model.constants.ApplicationConstants.USER_WITH_USERNAME_NOT_FOUND;
+
 
 public class AppUserDetailsService implements UserDetailsService {
-
     private final Logger logger = LoggerFactory.getLogger(AppUserDetailsService.class);
     private final UserRepository userRepository;
 
@@ -30,8 +31,8 @@ public class AppUserDetailsService implements UserDetailsService {
                 .findByUsername(username)
                 .map(this::mapUserToUserDetails)
                 .orElseThrow(() -> {
-                    logger.info("User with username '" + username + "' was not found!");
-                    return new UsernameNotFoundException("User with this username '" + username + "' was not found!");
+                    logger.info(String.format(USER_WITH_USERNAME_NOT_FOUND, username));
+                    return new UsernameNotFoundException(String.format(USER_WITH_USERNAME_NOT_FOUND, username));
                 });
     }
 

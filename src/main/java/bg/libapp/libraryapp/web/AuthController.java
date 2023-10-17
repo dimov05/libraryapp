@@ -2,9 +2,6 @@ package bg.libapp.libraryapp.web;
 
 import bg.libapp.libraryapp.model.dto.user.LoginUserRequest;
 import bg.libapp.libraryapp.model.dto.user.RegisterUserRequest;
-import bg.libapp.libraryapp.model.dto.user.UserDTO;
-import bg.libapp.libraryapp.model.entity.User;
-import bg.libapp.libraryapp.model.mappers.UserMapper;
 import bg.libapp.libraryapp.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,13 +22,10 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
 
-    private final PasswordEncoder passwordEncoder;
-
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, UserService userService, PasswordEncoder passwordEncoder) {
+    public AuthController(AuthenticationManager authenticationManager, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")

@@ -5,7 +5,7 @@ import bg.libapp.libraryapp.model.dto.rent.RentDTO;
 import java.time.LocalDate;
 import java.util.List;
 
-public class UserExtendedDTO extends UserDTO{
+public class UserExtendedDTO extends UserDTO {
     private List<RentDTO> rents;
 
     public UserExtendedDTO() {
@@ -23,6 +23,7 @@ public class UserExtendedDTO extends UserDTO{
         this.rents = rents;
         return this;
     }
+
     public UserExtendedDTO setId(long id) {
         super.setId(id);
         return this;

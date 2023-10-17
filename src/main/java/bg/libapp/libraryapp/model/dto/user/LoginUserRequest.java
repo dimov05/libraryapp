@@ -1,9 +1,7 @@
 package bg.libapp.libraryapp.model.dto.user;
 
 public class LoginUserRequest {
-
     private String username;
-
     private String password;
 
     public LoginUserRequest() {

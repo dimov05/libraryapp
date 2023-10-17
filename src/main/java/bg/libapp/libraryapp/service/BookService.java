@@ -30,7 +30,6 @@ import bg.libapp.libraryapp.repository.GenreRepository;
 import bg.libapp.libraryapp.specifications.BookSpecifications;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,23 +49,20 @@ import static bg.libapp.libraryapp.model.constants.ApplicationConstants.*;
 @Service
 @Transactional
 public class BookService {
-
     private final Logger logger = LoggerFactory.getLogger(BookService.class);
-
     private final BookRepository bookRepository;
     private final GenreRepository genreRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final ObjectMapper mapper;
-
+    private final ObjectMapper objectMapper;
     private final AuthorService authorService;
 
     @Autowired
-    public BookService(BookRepository bookRepository, GenreRepository genreRepository, ApplicationEventPublisher eventPublisher, AuthorService authorService) {
+    public BookService(BookRepository bookRepository, GenreRepository genreRepository, ApplicationEventPublisher eventPublisher, ObjectMapper objectMapper, AuthorService authorService) {
         this.bookRepository = bookRepository;
         this.genreRepository = genreRepository;
         this.eventPublisher = eventPublisher;
+        this.objectMapper = objectMapper;
         this.authorService = authorService;
-        this.mapper = new ObjectMapper().registerModule(new JavaTimeModule());
     }
 
     public BookDTO saveNewBook(BookAddRequest bookAddRequest) {
@@ -102,7 +98,6 @@ public class BookService {
         BookDTO bookToReturn = BookMapper.mapToBookDTO(bookToDelete);
         bookRepository.delete(bookToDelete);
         logger.info("Delete book with isbn '" + isbn + "'");
-
         return bookToReturn;
     }
 
@@ -121,14 +116,14 @@ public class BookService {
 
     private void isBookActive(Book bookToEdit) {
         if (!bookToEdit.isActive()) {
-            logger.error("Book with isbn '" + bookToEdit.getIsbn() + "' is active!");
+            logger.error("Book with isbn '" + bookToEdit.getIsbn() + "' is not active!");
             throw new BookNotActiveException(bookToEdit.getIsbn());
         }
     }
 
     private void isBookInActive(Book bookToEdit) {
         if (bookToEdit.isActive()) {
-            logger.error("Book with isbn '" + bookToEdit.getIsbn() + "' is not active!");
+            logger.error("Book with isbn '" + bookToEdit.getIsbn() + "' is active and can not be deleted!");
             throw new BookIsActiveOnDeleteException(bookToEdit.getIsbn());
         }
     }
@@ -163,7 +158,7 @@ public class BookService {
     private String getJsonOfBook(Book book) {
         String json;
         try {
-            json = mapper.writeValueAsString(BookMapper.mapToBookDTO(book));
+            json = objectMapper.writeValueAsString(BookMapper.mapToBookDTO(book));
         } catch (JsonProcessingException e) {
             logger.error("Can not get json format of book entity!");
             throw new CannotProcessJsonOfEntityException(book);

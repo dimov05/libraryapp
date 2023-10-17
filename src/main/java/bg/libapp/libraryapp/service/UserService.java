@@ -1,7 +1,14 @@
 package bg.libapp.libraryapp.service;
 
-import bg.libapp.libraryapp.exceptions.user.*;
-import bg.libapp.libraryapp.model.dto.user.*;
+import bg.libapp.libraryapp.exceptions.user.UserIsAlreadyActivatedException;
+import bg.libapp.libraryapp.exceptions.user.UserIsAlreadyDeactivatedException;
+import bg.libapp.libraryapp.exceptions.user.UserNotFoundException;
+import bg.libapp.libraryapp.exceptions.user.UserWithThisUsernameAlreadyExistsException;
+import bg.libapp.libraryapp.model.dto.user.ChangePasswordRequest;
+import bg.libapp.libraryapp.model.dto.user.ChangeRoleRequest;
+import bg.libapp.libraryapp.model.dto.user.RegisterUserRequest;
+import bg.libapp.libraryapp.model.dto.user.UpdateUserRequest;
+import bg.libapp.libraryapp.model.dto.user.UserDTO;
 import bg.libapp.libraryapp.model.entity.User;
 import bg.libapp.libraryapp.model.mappers.UserMapper;
 import bg.libapp.libraryapp.repository.UserRepository;
@@ -19,7 +26,6 @@ import java.util.List;
 @Transactional
 public class UserService {
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -49,14 +55,14 @@ public class UserService {
     public UserDTO getUserExtendedDTO(long id) {
         logger.info("getUserDTOById method accessed with id: '" + id + "'");
         User user = userRepository.findById(id)
-                .orElseThrow(() -> logAndThrowException(id));
+                .orElseThrow(() -> logAndThrowExceptionForUserNotFound(id));
         return UserMapper.mapToUserExtendedDTO(user);
     }
 
     public User getUserById(long id) {
         logger.info("getUserById method accessed with id: '" + id + "'");
         return userRepository.findById(id)
-                .orElseThrow(() -> logAndThrowException(id));
+                .orElseThrow(() -> logAndThrowExceptionForUserNotFound(id));
     }
 
     public List<UserDTO> getAllUsers() {
@@ -71,18 +77,18 @@ public class UserService {
     public UserDTO editUserAndSave(UpdateUserRequest updateUserRequest, long id) {
         logger.info("editUserAndSave method accessed with user with id '" + id + "' and params: " + updateUserRequest);
         User oldUser = userRepository.findById(id)
-                .orElseThrow(() -> logAndThrowException(id));
+                .orElseThrow(() -> logAndThrowExceptionForUserNotFound(id));
         editUserWithUpdateUserRequestData(updateUserRequest, oldUser);
         userRepository.saveAndFlush(oldUser);
         return UserMapper.mapToUserDTO(oldUser);
     }
 
-    private UserNotFoundException logAndThrowException(long id) {
+    private UserNotFoundException logAndThrowExceptionForUserNotFound(long id) {
         logger.info("User with id '" + id + "' was not found!");
         return new UserNotFoundException(id);
     }
 
-    private UserNotFoundException logAndThrowException(String username) {
+    private UserNotFoundException logAndThrowExceptionForUserNotFound(String username) {
         logger.info("User with username '" + username + "' was not found!");
         return new UserNotFoundException(username);
     }
@@ -90,7 +96,7 @@ public class UserService {
     public UserDTO changeRoleAndSave(ChangeRoleRequest changeRoleRequest, long id) {
         logger.info("changeRoleAndSave method accessed with user with id '" + id + "'");
         User oldUser = userRepository.findById(id)
-                .orElseThrow(() -> logAndThrowException(id));
+                .orElseThrow(() -> logAndThrowExceptionForUserNotFound(id));
         oldUser.setRole(changeRoleRequest.getRole());
         userRepository.saveAndFlush(oldUser);
         return UserMapper.mapToUserDTO(oldUser);
@@ -99,7 +105,7 @@ public class UserService {
     public UserDTO changePasswordAndSave(ChangePasswordRequest changePasswordRequest, long id) {
         logger.info("changePasswordAndSave method accessed with user with id '" + id + "'");
         User oldUser = userRepository.findById(id)
-                .orElseThrow(() -> logAndThrowException(id));
+                .orElseThrow(() -> logAndThrowExceptionForUserNotFound(id));
         oldUser.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepository.saveAndFlush(oldUser);
         return UserMapper.mapToUserDTO(oldUser);
@@ -108,7 +114,7 @@ public class UserService {
     public String getUsernameById(long id) {
         logger.info("getUsernameById method accessed with id '" + id + "'");
         return userRepository.findById(id)
-                .orElseThrow(() -> logAndThrowException(id))
+                .orElseThrow(() -> logAndThrowExceptionForUserNotFound(id))
                 .getUsername();
     }
 
@@ -122,7 +128,7 @@ public class UserService {
     public UserDTO deleteUserById(long id) {
         logger.info("deleteUserById method accessed with id '" + id + "'");
         User toDelete = userRepository.findById(id)
-                .orElseThrow(() -> logAndThrowException(id));
+                .orElseThrow(() -> logAndThrowExceptionForUserNotFound(id));
         userRepository.deleteById(id);
         return UserMapper.mapToUserDTO(toDelete);
     }
@@ -136,7 +142,7 @@ public class UserService {
     public UserDTO deactivateUser(long id) {
         logger.info("Deactivate user with id '" + id + "'");
         User userToEdit = userRepository.findById(id)
-                .orElseThrow(() -> logAndThrowException(id));
+                .orElseThrow(() -> logAndThrowExceptionForUserNotFound(id));
         if (!userToEdit.isActive()) {
             logger.error("User account must be active in order to be deactivated");
             throw new UserIsAlreadyDeactivatedException(id);
@@ -149,7 +155,7 @@ public class UserService {
     public UserDTO activateUser(long id) {
         logger.info("Activate user with id '" + id + "'");
         User userToEdit = userRepository.findById(id)
-                .orElseThrow(() -> logAndThrowException(id));
+                .orElseThrow(() -> logAndThrowExceptionForUserNotFound(id));
         if (userToEdit.isActive()) {
             logger.error("User account must be inactive in order to be activated");
             throw new UserIsAlreadyActivatedException(id);
@@ -162,6 +168,6 @@ public class UserService {
     public User getUserByUsername(String username) {
         logger.info("getUserByUsername method accessed with username '" + username + "'");
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> logAndThrowException(username));
+                .orElseThrow(() -> logAndThrowExceptionForUserNotFound(username));
     }
 }

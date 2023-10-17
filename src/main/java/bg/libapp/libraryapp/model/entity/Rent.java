@@ -73,8 +73,9 @@ public class Rent {
         return actualReturnDate;
     }
 
-    public void setActualReturnDate(LocalDate actualReturnDate) {
+    public Rent setActualReturnDate(LocalDate actualReturnDate) {
         this.actualReturnDate = actualReturnDate;
+        return this;
     }
 
     public User getUser() {

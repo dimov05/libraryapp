@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 @Service
 public class GenreService {
     private final Logger logger = LoggerFactory.getLogger(GenreService.class);
-
     private final GenreRepository genreRepository;
 
     public GenreService(GenreRepository genreRepository) {

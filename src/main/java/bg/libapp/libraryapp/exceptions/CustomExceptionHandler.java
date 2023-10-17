@@ -16,7 +16,6 @@ public class CustomExceptionHandler {
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     public ResponseEntity<List<String>> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
-
         List<String> errors = new ArrayList<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String errorMessage = error.getDefaultMessage();

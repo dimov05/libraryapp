@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 public class BookMapper {
     private static final Logger logger = LoggerFactory.getLogger(BookService.class);
 
-
     public static BookDTO mapToBookDTO(Book book) {
         logger.info("mapToBookDTO mapper method called with params " + book);
         return new BookDTO()

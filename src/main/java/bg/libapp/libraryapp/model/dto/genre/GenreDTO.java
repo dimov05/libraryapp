@@ -2,6 +2,7 @@ package bg.libapp.libraryapp.model.dto.genre;
 
 public class GenreDTO {
     private String name;
+
     public GenreDTO() {
     }
 

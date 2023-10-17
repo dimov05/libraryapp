@@ -9,9 +9,7 @@ public class BookDTO {
     private String title;
     private int year;
     private Boolean isActive;
-
     private int availableQuantity;
-
     private int totalQuantity;
     private String deactivateReason;
     private String publisher;

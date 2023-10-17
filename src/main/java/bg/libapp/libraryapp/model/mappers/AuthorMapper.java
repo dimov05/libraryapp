@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 public class AuthorMapper {
     private static final Logger logger = LoggerFactory.getLogger(BookService.class);
 
-
     public static AuthorExtendedDTO mapToAuthorExtendedDTO(Author author) {
         logger.info("mapToAuthorExtendedDTO mapper method called with params " + author);
         return new AuthorExtendedDTO()

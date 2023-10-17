@@ -18,7 +18,6 @@ public class AuthorService {
     private final AuthorRepository authorRepository;
     private final Logger logger = LoggerFactory.getLogger(AuthorService.class);
 
-
     @Autowired
     public AuthorService(AuthorRepository authorRepository) {
         this.authorRepository = authorRepository;
@@ -36,7 +35,7 @@ public class AuthorService {
         return this.authorRepository.findAuthorByFirstNameAndLastName(author.getFirstName(), author.getLastName())
                 .orElse(authorRepository.saveAndFlush(
                         new Author()
-                        .setFirstName(author.getFirstName())
-                        .setLastName(author.getLastName())));
+                                .setFirstName(author.getFirstName())
+                                .setLastName(author.getLastName())));
     }
 }
