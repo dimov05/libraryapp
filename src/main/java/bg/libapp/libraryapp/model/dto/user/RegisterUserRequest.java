@@ -26,7 +26,6 @@ public class RegisterUserRequest {
     @NotEmpty(message = "Password can not be empty")
     @Length(min = 6, max = 100, message = "Password should be at least 6 symbols")
     private String password;
-
     @NotEmpty(message = "Password can not be empty")
     @Length(min = 6, max = 100, message = "Password should be at least 6 symbols")
     private String confirmPassword;
@@ -116,6 +115,8 @@ public class RegisterUserRequest {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", displayName='" + displayName + '\'' +
+                ", password='" + password + '\'' +
+                ", confirmPassword='" + confirmPassword + '\'' +
                 ", dateOfBirth=" + dateOfBirth +
                 '}';
     }

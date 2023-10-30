@@ -1,7 +1,16 @@
 package bg.libapp.libraryapp.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,25 +38,20 @@ public class User {
     private int role;
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
+    @Column(name = "balance", nullable = false)
+    private BigDecimal balance;
     @OneToMany(mappedBy = "user")
     private List<Rent> rents;
+    @ManyToOne
+    @JoinColumn(name = "subscription_id")
+    private Subscription subscription;
+    @Column(name = "has_unsubscribed")
+    private boolean hasUnsubscribed;
 
     public User() {
     }
 
-    public User(String username, String firstName, String lastName, String displayName, String password, LocalDate dateOfBirth, int role, boolean isActive, List<Rent> rents) {
-        this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.displayName = displayName;
-        this.password = password;
-        this.dateOfBirth = dateOfBirth;
-        this.role = role;
-        this.isActive = isActive;
-        this.rents = rents;
-    }
-
-    public User(long id, String username, String firstName, String lastName, String displayName, String password, LocalDate dateOfBirth, int role, boolean isActive) {
+    public User(long id, String username, String firstName, String lastName, String displayName, String password, LocalDate dateOfBirth, int role, boolean isActive, BigDecimal balance, List<Rent> rents, Subscription subscription, boolean hasUnsubscribed) {
         this.id = id;
         this.username = username;
         this.firstName = firstName;
@@ -57,6 +61,10 @@ public class User {
         this.dateOfBirth = dateOfBirth;
         this.role = role;
         this.isActive = isActive;
+        this.balance = balance;
+        this.rents = rents;
+        this.subscription = subscription;
+        this.hasUnsubscribed = hasUnsubscribed;
     }
 
     public long getId() {
@@ -152,5 +160,32 @@ public class User {
     public void addRent(Rent rent) {
         if (this.rents == null) this.rents = new ArrayList<>();
         this.rents.add(rent);
+    }
+
+    public Subscription getSubscription() {
+        return subscription;
+    }
+
+    public User setSubscription(Subscription subscription) {
+        this.subscription = subscription;
+        return this;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public User setBalance(BigDecimal balance) {
+        this.balance = balance;
+        return this;
+    }
+
+    public boolean isHasUnsubscribed() {
+        return hasUnsubscribed;
+    }
+
+    public User setHasUnsubscribed(boolean hasUnsubscribed) {
+        this.hasUnsubscribed = hasUnsubscribed;
+        return this;
     }
 }

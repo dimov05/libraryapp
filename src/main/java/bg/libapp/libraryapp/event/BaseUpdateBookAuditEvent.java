@@ -5,7 +5,6 @@ import bg.libapp.libraryapp.model.entity.Book;
 public abstract class BaseUpdateBookAuditEvent extends BaseBookAuditEvent {
     private String fieldName;
     private String oldValue;
-
     private String newValue;
 
     public BaseUpdateBookAuditEvent(Book book, String oldValue) {

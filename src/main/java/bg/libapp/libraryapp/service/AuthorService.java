@@ -13,11 +13,13 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static bg.libapp.libraryapp.model.constants.ApplicationConstants.FIND_OR_CREATE_AUTHOR_ACCESSED_LOGGER;
+import static bg.libapp.libraryapp.model.constants.ApplicationConstants.GET_ALL_AUTHORS_ACCESSED_LOGGER;
+
 @Service
 public class AuthorService {
     private final AuthorRepository authorRepository;
     private final Logger logger = LoggerFactory.getLogger(AuthorService.class);
-
 
     @Autowired
     public AuthorService(AuthorRepository authorRepository) {
@@ -25,18 +27,18 @@ public class AuthorService {
     }
 
     public Set<AuthorExtendedDTO> getAllAuthors() {
-        logger.info("getAllAuthors method accessed");
+        logger.info(GET_ALL_AUTHORS_ACCESSED_LOGGER);
         return authorRepository.findAll()
                 .stream().map(AuthorMapper::mapToAuthorExtendedDTO)
                 .collect(Collectors.toSet());
     }
 
     public Author findOrCreate(AuthorRequest author) {
-        logger.info("findOrCreate Author method accessed by AuthorService with params: " + author);
+        logger.info(FIND_OR_CREATE_AUTHOR_ACCESSED_LOGGER, author);
         return this.authorRepository.findAuthorByFirstNameAndLastName(author.getFirstName(), author.getLastName())
                 .orElse(authorRepository.saveAndFlush(
                         new Author()
-                        .setFirstName(author.getFirstName())
-                        .setLastName(author.getLastName())));
+                                .setFirstName(author.getFirstName())
+                                .setLastName(author.getLastName())));
     }
 }

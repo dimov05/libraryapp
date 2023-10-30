@@ -9,11 +9,13 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 
+import static bg.libapp.libraryapp.model.constants.ApplicationConstants.MAP_TO_BOOK_AUDIT_ACCESSED;
+
 public class BookAuditMapper {
     private static final Logger logger = LoggerFactory.getLogger(BookService.class);
 
     public static BookAudit mapToBookAudit(BaseUpdateBookAuditEvent event) {
-        logger.info("mapToBookAudit mapper method called with params " + event);
+        logger.info(MAP_TO_BOOK_AUDIT_ACCESSED, event);
         return new BookAudit()
                 .setEventDate(LocalDateTime.now())
                 .setOperationType(event.getOperationType().name())
@@ -25,7 +27,7 @@ public class BookAuditMapper {
     }
 
     public static BookAudit mapToBookAudit(SaveBookAuditEvent event) {
-        logger.info("mapToBookAudit mapper method called with params " + event);
+        logger.info(MAP_TO_BOOK_AUDIT_ACCESSED, event);
         return new BookAudit()
                 .setEventDate(LocalDateTime.now())
                 .setOperationType(event.getOperationType().name())

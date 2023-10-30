@@ -6,11 +6,13 @@ import bg.libapp.libraryapp.service.BookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static bg.libapp.libraryapp.model.constants.ApplicationConstants.MAP_TO_RENT_DTO_ACCESSED;
+
 public class RentMapper {
     private static final Logger logger = LoggerFactory.getLogger(BookService.class);
 
     public static RentDTO mapToRentDTO(Rent rent) {
-        logger.info("mapToRentDTO mapper method called with params " + rent);
+        logger.info(MAP_TO_RENT_DTO_ACCESSED, rent);
         return new RentDTO()
                 .setId(rent.getId())
                 .setRentDate(rent.getRentDate().toString())

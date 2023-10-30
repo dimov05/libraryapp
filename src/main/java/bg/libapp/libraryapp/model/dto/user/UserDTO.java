@@ -1,7 +1,5 @@
 package bg.libapp.libraryapp.model.dto.user;
 
-import java.time.LocalDate;
-
 public class UserDTO {
     private long id;
     private String username;
@@ -9,15 +7,14 @@ public class UserDTO {
     private String firstName;
 
     private String lastName;
-
     private String displayName;
-
-    private LocalDate dateOfBirth;
+    private String dateOfBirth;
 
     private String role;
 
     private boolean isActive;
-
+    private String subscription;
+    private String balance;
 
     public UserDTO() {
     }
@@ -42,7 +39,7 @@ public class UserDTO {
         return displayName;
     }
 
-    public LocalDate getDateOfBirth() {
+    public String getDateOfBirth() {
         return dateOfBirth;
     }
 
@@ -75,7 +72,7 @@ public class UserDTO {
         return this;
     }
 
-    public UserDTO setDateOfBirth(LocalDate dateOfBirth) {
+    public UserDTO setDateOfBirth(String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
         return this;
     }
@@ -94,17 +91,26 @@ public class UserDTO {
         return this;
     }
 
+    public String getSubscription() {
+        return subscription;
+    }
+
+    public UserDTO setSubscription(String subscription) {
+        this.subscription = subscription;
+        return this;
+    }
+
+    public String getBalance() {
+        return balance;
+    }
+
+    public UserDTO setBalance(String balance) {
+        this.balance = balance;
+        return this;
+    }
+
     @Override
     public String toString() {
-        return "{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", displayName='" + displayName + '\'' +
-                ", dateOfBirth=" + dateOfBirth +
-                ", role='" + role + '\'' +
-                ", isActive=" + isActive +
-                '}';
+        return "{" + "id=" + id + ", username='" + username + '\'' + ", firstName='" + firstName + '\'' + ", lastName='" + lastName + '\'' + ", displayName='" + displayName + '\'' + ", dateOfBirth=" + dateOfBirth + ", role='" + role + '\'' + ", isActive=" + isActive + ", subscription='" + subscription + '\'' + ", balance='" + balance + '\'' + '}';
     }
 }

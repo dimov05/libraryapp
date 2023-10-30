@@ -98,3 +98,21 @@ ALTER TABLE book
     ADD available_quantity INT NOT NULL DEFAULT 0 AFTER is_active;
 ALTER TABLE book
     ADD total_quantity INT NOT NULL DEFAULT 0 AFTER available_quantity;
+ALTER TABLE user
+    ADD subscription VARCHAR(30) NOT NULL DEFAULT 'BRONZE';
+create table subscription
+(
+    id                BIGINT PRIMARY KEY AUTO_INCREMENT,
+    subscription_type VARCHAR(40) NOT NULL
+);
+
+ALTER TABLE user
+    ADD subscription_id BIGINT;
+ALTER TABLE user
+    add has_unsubscribed BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE subscription
+    add days_allowed smallint NOT NULL DEFAULT 30;
+ALTER TABLE subscription
+    add rents_allowed smallint NOT NULL DEFAULT 3;
+ALTER TABLE subscription
+    add price DECIMAL NOT NULL DEFAULT 0;

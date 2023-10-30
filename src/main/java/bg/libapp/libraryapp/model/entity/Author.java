@@ -1,6 +1,13 @@
 package bg.libapp.libraryapp.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,12 +19,12 @@ public class Author {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
-    @Column(name = "first_name",length = 50,nullable = false)
+    @Column(name = "first_name", length = 50, nullable = false)
     private String firstName;
-    @Column(name = "last_name",length = 50,nullable = false)
+    @Column(name = "last_name", length = 50, nullable = false)
     private String lastName;
 
-    @ManyToMany(mappedBy = "authors",cascade = CascadeType.PERSIST)
+    @ManyToMany(mappedBy = "authors", cascade = CascadeType.PERSIST)
     private Set<Book> books;
 
     public Author() {

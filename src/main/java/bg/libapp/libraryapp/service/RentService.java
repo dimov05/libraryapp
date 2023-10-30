@@ -7,6 +7,8 @@ import bg.libapp.libraryapp.exceptions.rent.RentNotFoundException;
 import bg.libapp.libraryapp.exceptions.rent.UserHasProlongedRentsException;
 import bg.libapp.libraryapp.exceptions.rent.UserNotEligibleToRentException;
 import bg.libapp.libraryapp.exceptions.rent.UserRentedMaximumAllowedBooksException;
+import bg.libapp.libraryapp.exceptions.user.NotEnoughBalanceToReturnBook;
+import bg.libapp.libraryapp.exceptions.user.UserDoesNotHaveSubscriptionException;
 import bg.libapp.libraryapp.model.dto.rent.RentAddRequest;
 import bg.libapp.libraryapp.model.dto.rent.RentDTO;
 import bg.libapp.libraryapp.model.entity.Book;
@@ -23,22 +25,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static bg.libapp.libraryapp.model.constants.ApplicationConstants.ONE_MONTH;
+import static bg.libapp.libraryapp.model.constants.ApplicationConstants.*;
 
 @Transactional
 @Service
 public class RentService {
-    private final Logger logger = LoggerFactory.getLogger(BookService.class);
+    private final Logger logger = LoggerFactory.getLogger(RentService.class);
     private final BookRepository bookRepository;
-
     private final RentRepository rentRepository;
-
     private final UserService userService;
-
     private final BookService bookService;
 
     @Autowired
@@ -54,59 +54,60 @@ public class RentService {
         hasEnoughAvailableQuantity(book);
 
         User borrower = userEligibleToRent(rentAddRequest);
-        logger.info("rentBook method called with borrower username '" + borrower.getUsername()
-                + "' for book with isbn '" + isbn
-                + "' with requestParams: " + rentAddRequest);
-
+        logger.info(RENT_BOOK_METHOD_CALLED_WITH_PARAMS_LOGGER, borrower.getUsername(), isbn, rentAddRequest);
+        int daysAvailableToRent = borrower.getSubscription().getDaysAllowed();
         checkRequirementsForRentCreation(isbn, borrower);
         Rent rent = new Rent()
                 .setRentDate(LocalDate.now())
                 .setBook(book)
                 .setUser(borrower)
-                .setExpectedReturnDate(getExpectedDateToSet(rentAddRequest));
+                .setExpectedReturnDate(LocalDate.now().plusDays(daysAvailableToRent));
         rentRepository.saveAndFlush(rent);
+        borrower.addRent(rent);
         bookRepository.saveAndFlush(book.setAvailableQuantity(book.getAvailableQuantity() - 1));
-        logger.info("Created new rent with params: " + rent);
+        logger.info(CREATED_NEW_RENT_WITH_PARAMS, rent);
         return RentMapper.mapToRentDTO(rent);
     }
 
     private void hasEnoughAvailableQuantity(Book book) {
-        logger.info("hasEnoughAvailableQuantity method called for book with isbn '" + book.getIsbn() + "'.");
+        logger.info(HAS_ENOUGH_AVAILABLE_QUANTITY_METHOD_CALLED_FOR_BOOK_WITH_ISBN, book.getIsbn());
         int availableQuantity = book.getAvailableQuantity();
         if (availableQuantity < 1) {
-            logger.error("Insufficient available quantity for book with isbn '" + book.getIsbn()
-                    + "', because available quantity is =" + availableQuantity);
+            logger.error(INSUFFICIENT_AVAILABLE_QUANTITY_FOR_BOOK_WITH_ISBN, book.getIsbn(), availableQuantity);
             throw new InsufficientAvailableQuantityException(book.getIsbn(), availableQuantity);
         }
     }
 
     private User userEligibleToRent(RentAddRequest rentAddRequest) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        logger.info("userEligibleToRent method called with params: " + rentAddRequest + "\n" +
-                " by authenticated user with username '" + username + "'.");
+        logger.info(USER_ELIGIBLE_TO_RENT_METHOD_CALLED_WITH_PARAMS_LOGGER, rentAddRequest, username);
         User borrower = userService.getUserByUsername(username);
         String userRole = Role.values()[borrower.getRole()].toString();
         Long userIdToRent = rentAddRequest.getUserId();
         if (!userRole.equals(String.valueOf(Role.ADMIN))
                 && !userRole.equals(String.valueOf(Role.MODERATOR))
                 && userIdToRent != borrower.getId()) {
-            logger.error("User is not eligible to rent - not ADMIN/MODERATOR or authenticated user != user for rent request");
+            logger.error(USER_NOT_ELIGIBLE_TO_RENT);
             throw new UserNotEligibleToRentException(username, userIdToRent);
         }
         if (userIdToRent != null && (userRole.equals(String.valueOf(Role.ADMIN)) || userRole.equals(String.valueOf(Role.MODERATOR)))) {
             borrower = userService.getUserById(userIdToRent);
+        }
+        if (borrower.getSubscription() == null) {
+            throw new UserDoesNotHaveSubscriptionException(borrower.getId());
         }
         return borrower;
     }
 
     private void checkRequirementsForRentCreation(String isbn, User borrower) {
         int counterOfCurrentRents = 0;
+        int maxAllowedRents = borrower.getSubscription().getRentsAllowed();
         for (Rent rent : borrower.getRents()) {
             isBookCurrentlyRentedByUser(isbn, rent);
             if (bookNotReturned(rent)) {
                 hasUserProlongedRents(borrower, rent);
                 if (hasEnoughTimeToReturnBook(rent)) {
-                    counterOfCurrentRents = countBorrowedBookAndThrowExceptionWhenMoreThanTwo(borrower, counterOfCurrentRents);
+                    counterOfCurrentRents = countBorrowedBookAndThrowExceptionWhenMoreThanTwo(borrower, counterOfCurrentRents, maxAllowedRents);
                 }
             }
         }
@@ -114,8 +115,7 @@ public class RentService {
 
     private void isBookCurrentlyRentedByUser(String isbn, Rent rent) {
         if (rent.getBook().getIsbn().equals(isbn) && rent.getActualReturnDate() == null) {
-            logger.error("Can not rent book twice for book with isbn '" + rent.getBook().getIsbn()
-                    + "' and user with id '" + rent.getUser().getId() + "'.");
+            logger.error(CAN_NOT_RENT_BOOK_WITH_ISBN_FOR_USER_TWICE, rent.getBook().getIsbn(), rent.getUser().getId());
             throw new CannotRentBookTwiceException(isbn);
         }
     }
@@ -126,7 +126,7 @@ public class RentService {
 
     private void hasUserProlongedRents(User borrower, Rent rent) {
         if (rent.getExpectedReturnDate().isBefore(LocalDate.now())) {
-            logger.error("User with id '" + borrower.getId() + "' has prolonged rent with id '" + rent.getId() + "'.");
+            logger.error(USER_WITH_ID_HAS_PROLONGED_RENT_WITH_ID, borrower.getId(), rent.getId());
             throw new UserHasProlongedRentsException(borrower.getId(), rent.getId());
         }
     }
@@ -135,27 +135,24 @@ public class RentService {
         return rent.getExpectedReturnDate().isAfter(LocalDate.now());
     }
 
-    private int countBorrowedBookAndThrowExceptionWhenMoreThanTwo(User borrower, int counterOfCurrentRents) {
+    private int countBorrowedBookAndThrowExceptionWhenMoreThanTwo(User borrower, int counterOfCurrentRents, int maxAllowedRents) {
         counterOfCurrentRents++;
-        if (counterOfCurrentRents == 3) {
-            logger.error("User with id '" + borrower.getId() + "' has rented already 3 books!");
+        if (counterOfCurrentRents == maxAllowedRents) {
+            logger.error(USER_WITH_ID_HAS_ALREADY_RENTED_3_BOOKS, borrower.getId());
             throw new UserRentedMaximumAllowedBooksException(borrower.getId());
         }
         return counterOfCurrentRents;
-    }
-
-    private static LocalDate getExpectedDateToSet(RentAddRequest rentAddRequest) {
-        return rentAddRequest.getExpectedReturnDate() != null
-                ? rentAddRequest.getExpectedReturnDate()
-                : LocalDate.now().plusMonths(ONE_MONTH);
     }
 
     public RentDTO returnBook(long rentId) {
         Rent rent = getRentById(rentId);
         isRentAlreadyReturned(rent);
         Book book = rent.getBook();
-        logger.info("returnBook method called for rent with id '" + rentId
-                + "' and book isbn '" + book.getIsbn() + "'.");
+        User user = rent.getUser();
+        logger.info(RETURN_BOOK_WITH_ISBN_METHOD_CALLED_FOR_RENT_WITH_ID, rentId, book.getIsbn());
+        if (user.getBalance().compareTo(BigDecimal.ZERO) < 0) {
+            throw new NotEnoughBalanceToReturnBook(user.getId(), user.getBalance(), book.getTitle());
+        }
         book.setAvailableQuantity(book.getAvailableQuantity() + 1);
         rent.setActualReturnDate(LocalDate.now());
         rentRepository.saveAndFlush(rent);
@@ -165,7 +162,7 @@ public class RentService {
 
     private void isRentAlreadyReturned(Rent rent) {
         if (rent.getActualReturnDate() != null) {
-            logger.error("Rent with id '" + rent.getId() + "' is already returned!");
+            logger.error(RENT_WITH_ID_IS_ALREADY_RETURNED, rent.getId());
             throw new RentAlreadyReturnedException(rent.getId());
         }
     }
@@ -176,16 +173,16 @@ public class RentService {
     }
 
     private Rent getRentById(long id) {
-        logger.info("Find rent with id '" + id + "'");
+        logger.info(FIND_RENT_WITH_ID, id);
         return rentRepository.findById(id)
                 .orElseThrow(() -> {
-                    logger.error("Rent with this id '" + id + "' was not found!");
+                    logger.error(FIND_RENT_WITH_ID_WAS_NOT_FOUND, id);
                     return new RentNotFoundException(id);
                 });
     }
 
     public Set<RentDTO> getAllRents() {
-        logger.info("getAllBooks method called");
+        logger.info(GET_ALL_RENTS_ACCESSED_LOGGER);
         return rentRepository.findAll()
                 .stream()
                 .map(RentMapper::mapToRentDTO)

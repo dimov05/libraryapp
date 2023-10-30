@@ -12,12 +12,15 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
+import static bg.libapp.libraryapp.model.constants.ApplicationConstants.MAP_TO_BOOK_ACCESSED;
+import static bg.libapp.libraryapp.model.constants.ApplicationConstants.MAP_TO_BOOK_DTO_ACCESSED;
+import static bg.libapp.libraryapp.model.constants.ApplicationConstants.MAP_TO_BOOK_EXTENDED_DTO_ACCESSED;
+
 public class BookMapper {
     private static final Logger logger = LoggerFactory.getLogger(BookService.class);
 
-
     public static BookDTO mapToBookDTO(Book book) {
-        logger.info("mapToBookDTO mapper method called with params " + book);
+        logger.info(MAP_TO_BOOK_DTO_ACCESSED, book);
         return new BookDTO()
                 .setIsbn(book.getIsbn())
                 .setYear(book.getYear())
@@ -34,7 +37,7 @@ public class BookMapper {
     }
 
     public static Book mapToBook(BookAddRequest bookAddRequest) {
-        logger.info("mapToBook mapper method called with params " + bookAddRequest);
+        logger.info(MAP_TO_BOOK_ACCESSED, bookAddRequest);
         return new Book()
                 .setIsbn(bookAddRequest.getIsbn())
                 .setTitle(bookAddRequest.getTitle())
@@ -47,7 +50,7 @@ public class BookMapper {
     }
 
     public static BookExtendedDTO mapToBookExtendedDTO(Book book) {
-        logger.info("mapToBookExtendedDTO mapper method called with params " + book);
+        logger.info(MAP_TO_BOOK_EXTENDED_DTO_ACCESSED, book);
         return new BookExtendedDTO()
                 .setIsbn(book.getIsbn())
                 .setTitle(book.getTitle())

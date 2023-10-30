@@ -52,5 +52,4 @@ public class RentController {
     public ResponseEntity<Set<RentDTO>> getAllRents() {
         return new ResponseEntity<>(rentService.getAllRents(), HttpStatus.OK);
     }
-
 }

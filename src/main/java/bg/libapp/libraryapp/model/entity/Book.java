@@ -1,6 +1,15 @@
 package bg.libapp.libraryapp.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -20,9 +29,9 @@ public class Book {
     private String publisher;
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
-    @Column(name = "available_quantity",nullable = false)
+    @Column(name = "available_quantity", nullable = false)
     private int availableQuantity;
-    @Column(name = "total_quantity",nullable = false)
+    @Column(name = "total_quantity", nullable = false)
     private int totalQuantity;
     @Column(name = "deactivate_reason")
     private String deactivateReason;

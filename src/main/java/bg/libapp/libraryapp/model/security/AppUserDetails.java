@@ -9,7 +9,6 @@ import java.util.Collection;
 public class AppUserDetails implements UserDetails, Serializable {
     private String username;
     private String password;
-
     private boolean isActive;
     private Collection<GrantedAuthority> authorities;
 

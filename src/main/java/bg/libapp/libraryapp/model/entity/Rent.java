@@ -22,7 +22,7 @@ public class Rent {
     private LocalDate rentDate;
     @Column(name = "expected_return_date", nullable = false)
     private LocalDate expectedReturnDate;
-    @Column(name = "actual_return_date", nullable = false)
+    @Column(name = "actual_return_date")
     private LocalDate actualReturnDate;
     @ManyToOne()
     @JoinColumn(name = "user_id", nullable = false)
@@ -73,8 +73,9 @@ public class Rent {
         return actualReturnDate;
     }
 
-    public void setActualReturnDate(LocalDate actualReturnDate) {
+    public Rent setActualReturnDate(LocalDate actualReturnDate) {
         this.actualReturnDate = actualReturnDate;
+        return this;
     }
 
     public User getUser() {

@@ -1,6 +1,13 @@
 package bg.libapp.libraryapp.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 
@@ -22,10 +29,10 @@ public class BookAudit {
     @Column(name = "new_value")
     private String newValue;
     @ManyToOne
-    @JoinColumn(name = "user_id",nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
     @ManyToOne
-    @JoinColumn(name = "book_isbn",nullable = false)
+    @JoinColumn(name = "book_isbn", nullable = false)
     private Book book;
 
     public BookAudit() {

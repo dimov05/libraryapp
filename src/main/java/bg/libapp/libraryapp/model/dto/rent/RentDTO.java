@@ -3,9 +3,6 @@ package bg.libapp.libraryapp.model.dto.rent;
 import bg.libapp.libraryapp.model.dto.book.BookDTO;
 import bg.libapp.libraryapp.model.dto.user.UserDTO;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 public class RentDTO {
     private long id;
     private String rentDate;
